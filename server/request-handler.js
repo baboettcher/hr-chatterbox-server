@@ -14,7 +14,16 @@ this file and include it in basic-server.js so that it actually works.
 
 var http = require('http');
 
-console.log("yo outside!")
+var defaultCorsHeaders = {
+  'access-control-allow-origin': '*',
+  'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'access-control-allow-headers': 'content-type, accept',
+  'access-control-max-age': 10 // Seconds.
+};
+
+var messages = [];
+
+console.log('yo outside!');
 
 var requestHandler = function(request, response) {
 
@@ -36,7 +45,23 @@ var requestHandler = function(request, response) {
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
 
   // The outgoing status.
-  var statusCode = 200;
+  var statusCode = 404;
+
+  if (request.url === "/classes/messages"){
+
+    if (request.method === "POST"){
+      statusCode = 201;
+      request.on('data', function(data){
+        messages.push(JSON.parse(data));
+      })
+    }
+
+    if (request.method === "GET"){
+      statusCode = 200;
+    }
+
+  }
+
 
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
@@ -51,10 +76,6 @@ var requestHandler = function(request, response) {
   // which includes the status and all headers.
   response.writeHead(statusCode, headers);
 
-  response._data2 = JSON.stringify({
-    name: "test"
-  });
-
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
   // response.end() will be the body of the response - i.e. what shows
@@ -63,7 +84,7 @@ var requestHandler = function(request, response) {
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
   response.end(JSON.stringify({
-    name: 'test'
+    results: messages,
   }));
 };
 
@@ -77,11 +98,5 @@ var requestHandler = function(request, response) {
 //
 // Another way to get around this restriction is to serve you chat
 // client from this domain by setting up static file serving.
-var defaultCorsHeaders = {
-  'access-control-allow-origin': '*',
-  'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'access-control-allow-headers': 'content-type, accept',
-  'access-control-max-age': 10 // Seconds.
-};
 
 exports.requestHandler = requestHandler;
