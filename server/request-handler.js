@@ -21,7 +21,11 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 
-var messages = [];
+var messages = [{
+  username: 'Mel Brooks',
+  text: 'Never underestimate the power of the Schwartz!',
+  roomname: 'lobby'
+}];
 
 console.log('yo outside!');
 
@@ -47,16 +51,20 @@ var requestHandler = function(request, response) {
   // The outgoing status.
   var statusCode = 404;
 
-  if (request.url === "/classes/messages"){
+  if (request.url === '/classes/messages' || request.url === '/classes/messages?order=-createdAt') {
 
-    if (request.method === "POST"){
+    if (request.method === 'POST') {
       statusCode = 201;
-      request.on('data', function(data){
+      request.on('data', function(data) {
         messages.push(JSON.parse(data));
-      })
+      });
     }
 
-    if (request.method === "GET"){
+    if (request.method === 'GET') {
+      statusCode = 200;
+    }
+
+    if (request.method === 'OPTIONS') {
       statusCode = 200;
     }
 
@@ -70,7 +78,7 @@ var requestHandler = function(request, response) {
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = 'text/javascript';
+  headers['Content-Type'] = 'application/json';
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
