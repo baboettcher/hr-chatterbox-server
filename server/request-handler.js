@@ -1,17 +1,3 @@
-/*************************************************************
-
-You should implement your request handler function in this file.
-
-requestHandler is already getting passed to http.createServer()
-in basic-server.js, but it won't work as is.
-
-You'll have to figure out a way to export this function from
-this file and include it in basic-server.js so that it actually works.
-
-*Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
-
-**************************************************************/
-
 var http = require('http');
 
 var defaultCorsHeaders = {
@@ -21,7 +7,7 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 
-var count = 0;
+var count = 0; // usedin messageId
 
 var messages = [];
 
@@ -32,6 +18,9 @@ var requestHandler = function(request, response) {
 
   headers['Content-Type'] = 'application/json';
 
+  // These headers will allow Cross-Origin Resource Sharing (CORS).This code allows this server to talk to websites that are on different domains, for instance, your chat client.
+  //
+  // Your chat client is running from a url like file://your/chat/client/index.html, which is considered a different domain Another way to get around this restriction is to serve you chat client from this domain by setting up static file serving.
 
   // Request and Response come from node's http module.
 
@@ -55,42 +44,32 @@ var requestHandler = function(request, response) {
       });
     }
 
-
     if (request.method === 'GET') {
       statusCode = 200;
       request.on('end', function() {
       });
     }
 
-
     if (request.method === 'OPTIONS') {
       statusCode = 200;
     }
-
   }
 
   response.writeHead(statusCode, headers);
+  // .writeHead() writes to the request line and headers of the response, which includes the status and all headers.
+
 
   request.on('error', function(err) {
-    console.error(err);
+    console.error('error------->', err);
   });
 
 
 
+  // response.write() - ?
 
-  // .writeHead() writes to the request line and headers of the response,
-  // which includes the status and all headers.
+  // Make sure to always call response.end() - Node may not send anything back to the client until you do. The string you pass to response.end() will be the body of the response - i.e. what show up in the browser.
 
-
-  //response.write()
-
-  // Make sure to always call response.end() - Node may not send
-  // anything back to the client until you do. The string you pass to
-  // response.end() will be the body of the response - i.e. what shows
-  // up in the browser.
-  //
-  // Calling .end "flushes" the response's internal buffer, forcing
-  // node to actually send all the data over to the client.
+  // Calling .end "flushes" the response's internal buffer, forcing node to actually send all the data over to the client.
 
   response.end(JSON.stringify({
     results: messages
@@ -98,14 +77,6 @@ var requestHandler = function(request, response) {
 };
 
 
-// These headers will allow Cross-Origin Resource Sharing (CORS).
-// This code allows this server to talk to websites that
-// are on different domains, for instance, your chat client.
-//
-// Your chat client is running from a url like file://your/chat/client/index.html,
-// which is considered a different domain.
-//
-// Another way to get around this restriction is to serve you chat
-// client from this domain by setting up static file serving.
+
 
 exports.requestHandler = requestHandler;
