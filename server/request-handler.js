@@ -62,7 +62,7 @@ var requestHandler = function(request, response) {
 
     if (request.method === 'POST') {
       statusCode = 201;
-      var stream = "";
+      var stream = '';
       count++;
       request.on('data', function(data) {
         stream += data;
@@ -98,7 +98,7 @@ var requestHandler = function(request, response) {
 
   request.on('error', function(err) {
     console.error(err);
-  })
+  });
 
   // See the note below about CORS headers.
 
