@@ -23,40 +23,21 @@ var defaultCorsHeaders = {
 
 var count = 0;
 
-var messages = [{
-  objectId: count.toString(),
-  username: 'Mel Brooks',
-  text: 'Never underestimate the power of the Schwartz!',
-  roomname: 'lobby'
-}];
-
-console.log('yo outside!');
+var messages = [];
 
 var requestHandler = function(request, response) {
 
   var headers = defaultCorsHeaders;
   var statusCode = 404;
 
+  headers['Content-Type'] = 'application/json';
+
 
   // Request and Response come from node's http module.
-  //
-  //console.log(response, request);
-  // They include information about both the incoming request, such as
-  // headers and URL, and about the outgoing response, such as its status
-  // and content.
-  //
-  // Documentation for both request and response can be found in the HTTP section at
-  // http://nodejs.org/documentation/api/
 
-  // Do some basic logging.
-  //
-  // Adding more logging to your server can be an easy way to get passive
-  // debugging help, but you should always be careful about leaving stray
-  // console.logs in your code.
+
+
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
-
-  // The outgoing status.
-
 
   if (request.url === '/classes/messages' || request.url === '/classes/messages?order=-createdAt') {
 
@@ -71,42 +52,31 @@ var requestHandler = function(request, response) {
         stream = JSON.parse(stream);
         stream.objectId = count.toString();
         messages.push(stream);
-
       });
-      response.writeHead(statusCode, headers);
-
     }
+
 
     if (request.method === 'GET') {
       statusCode = 200;
-      response.writeHead(statusCode, headers);
       request.on('end', function() {
-        // response.write(JSON.stringify({
-        //   results: messages
-        // }));
-
       });
     }
 
+
     if (request.method === 'OPTIONS') {
       statusCode = 200;
-      response.writeHead(statusCode, headers);
     }
-    response.writeHead(statusCode, headers);
+
   }
 
+  response.writeHead(statusCode, headers);
 
   request.on('error', function(err) {
     console.error(err);
   });
 
-  // See the note below about CORS headers.
 
-  // Tell the client we are sending them plain text.
-  //
-  // You will need to change this if you are sending something
-  // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = 'application/json';
+
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
@@ -121,7 +91,7 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  console.log();
+
   response.end(JSON.stringify({
     results: messages
   }));
