@@ -42,11 +42,11 @@ var app = {
     $.ajax({
       url: app.server,
       type: 'POST',
-      data: message,
+      data: JSON.stringify(message),
       success: function (data) {
         // Clear messages input
         app.$message.val('');
-
+        console.log(message);
         // Trigger a fetch to update the messages, pass true to animate
         app.fetch();
       },
